@@ -1,15 +1,40 @@
 
+
 from django.http import HttpResponse
 from django.shortcuts import render
+from AppWb import forms
 
-from AppWb.forms import EquiposFormularios, AsociadosFormularios, CursosFormularios
+from AppWb.forms import EquiposFormularios, AsociadosFormularios, CursosFormularios, UserRegisterForm
 from AppWb.models import Asociados, Cursos, Equipos
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView,UpdateView,DeleteView
-from django.urls import reverse_lazy
+ #LOGIN
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, authenticate
 
+def login_request(request):
+    if request.method =='POST':
+        form = AuthenticationForm(request, data = request.POST)
 
+        if form.is_valid():
+            usuario=form.cleaned_data.get('username')
+
+            contraseña=form.cleaned_data.get('password')
+
+            user=authenticate(username=usuario, password=contraseña)
+
+            if user:
+                login(request, user)
+                return render(request, 'AppWb/inicio.html', {'mensaje':f"Bienvenido a Wolrd e-sports {user}"})
+        else:
+
+            return render(request, 'AppWb/inicio.html',{'mensaje':"Error. Datos incorrectos"})
+    else:
+        form=AuthenticationForm()
+    return render(request, 'AppWb/login.html',{'form':form})
+        
 
 # Create your views here.
 def inicio(request):
@@ -52,6 +77,7 @@ def cursos(request):
     else:
         miFormulario= CursosFormularios()
     return render(request,'AppWb/cursos.html', {'miFormulario':miFormulario})
+
 def equipos(request):
     if request.method=='POST':
         miFormulario= EquiposFormularios(request.POST)
@@ -72,6 +98,7 @@ def equipos(request):
 def busquedaSeguidores(request):
     return render(request, 'AppWb/busquedaSeguidores.html')
 
+
 def buscar(request):
     if request.GET['seguidores']:
         seguidores=request.GET['seguidores']
@@ -86,6 +113,7 @@ def lecturaCursos(request):
     cursos=Cursos.objects.all()
     contexto1= {'cursos':cursos}
     return render(request, 'AppWb/lecturaCursos.html', contexto1)
+
 def eliminarCurso(request, cursos_nombre):
 
     cursos=Cursos.objects.get(nombre=cursos_nombre)
@@ -94,6 +122,7 @@ def eliminarCurso(request, cursos_nombre):
     cursos= Cursos.objects.all()
     contextin= {'cursos': cursos}
     return render(request, 'AppWb/lecturaCursos.html', contextin)
+
 
 def editarCurso(request,cursos_nombre):
     cursos=Cursos.objects.get(nombre=cursos_nombre)
@@ -115,24 +144,24 @@ def editarCurso(request,cursos_nombre):
     else: 
         miFormulario= CursosFormularios(initial={'nombre':cursos.nombre, 'jugadorpro': cursos.jugadorpro, 'duracion': cursos.duracion})
     return render(request, 'AppWb/editarCurso.html', {'miFormulario':miFormulario, 'cursos_nombre':cursos_nombre})
-     
 
-            
-class CursosList(ListView):
+
+class CursosList( ListView):
     model = Cursos
-    template_name = 'AppWb/cursos_list.html'
-class CursosDetalle(DetailView):
+    template_name = 'AppWb/curso_list.html'
+class CursosDetalle( DetailView):
     model = Cursos
     template_name = 'AppWb/cursos_detalle.html'
-class CursosCreacion(CreateView):
+class CursosCreacion( CreateView):
+    model = Cursos
+    success_url = '/AppWb/curso/list'
+    fields = ['nombre', 'jugadorpro','duracion']
+class CursosUpdate( UpdateView):
     model = Cursos
     success_url = '/AppWb/cursos/list'
     fields = ['nombre', 'jugadorpro','duracion']
-class CursosUpdate(UpdateView):
+class CursosDelete( DeleteView):
     model = Cursos
-    success_url = '/AppWb/cursos/list'
-    fields = ['nombre', 'jugadorpro','duracion']
-class CursosDelete(DeleteView):
-    model = Cursos
-    success_url = '/AppWb/cursos/list'
+    success_url = '/AppWb/curso/list'
+
 

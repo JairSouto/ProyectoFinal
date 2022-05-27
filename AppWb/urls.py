@@ -1,5 +1,7 @@
+import imp
 from django.urls import path 
 from AppWb import views
+from django.contrib.auth.views import LogoutView
 
 
 urlpatterns = [
@@ -14,7 +16,17 @@ urlpatterns = [
     path('eliminarCursos/<cursos_nombre>/',views.eliminarCurso,name='EliminarCursos'),
     path('editarCursos/<cursos_nombre>/',views.editarCurso, name='EditarCursos'),
 
-    path('cursos/list', views.CursosList.as_view(), name='List'),
+    path('curso/list', views.CursosList.as_view(), name='List'),
+
+    path('login', views.login_request, name='Login'),
+    #path('register',views.register,name='Register'),
+    path('logout', LogoutView.as_view(template_name='AppWb/logout.html'),name='Logout'),
+    
+
+
+
+
+
     path(r'^(?P<pk>\d+)$', views.CursosDetalle.as_view(), name='Detail'),
     path(r'^nuevo$',views.CursosCreacion.as_view(), name='New'),
     path(r'^editar/(?P<pk>\d+)$',views.CursosUpdate.as_view(), name='Edit'),
