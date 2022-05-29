@@ -12,7 +12,23 @@ from django.views.generic.edit import CreateView,UpdateView,DeleteView
  #LOGIN
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate,logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            username= form.cleaned_data['username']
+            form.save()
+    else:
+        form = UserRegisterForm
+    return render(request,'AppWb/registro.html',{'form':form})
+
+
+
+
+
 
 def login_request(request):
     if request.method =='POST':
@@ -77,7 +93,7 @@ def cursos(request):
     else:
         miFormulario= CursosFormularios()
     return render(request,'AppWb/cursos.html', {'miFormulario':miFormulario})
-
+@login_required
 def equipos(request):
     if request.method=='POST':
         miFormulario= EquiposFormularios(request.POST)
@@ -113,7 +129,7 @@ def lecturaCursos(request):
     cursos=Cursos.objects.all()
     contexto1= {'cursos':cursos}
     return render(request, 'AppWb/lecturaCursos.html', contexto1)
-
+@login_required
 def eliminarCurso(request, cursos_nombre):
 
     cursos=Cursos.objects.get(nombre=cursos_nombre)
@@ -123,7 +139,7 @@ def eliminarCurso(request, cursos_nombre):
     contextin= {'cursos': cursos}
     return render(request, 'AppWb/lecturaCursos.html', contextin)
 
-
+@login_required
 def editarCurso(request,cursos_nombre):
     cursos=Cursos.objects.get(nombre=cursos_nombre)
     if request.method == 'POST':
@@ -146,21 +162,21 @@ def editarCurso(request,cursos_nombre):
     return render(request, 'AppWb/editarCurso.html', {'miFormulario':miFormulario, 'cursos_nombre':cursos_nombre})
 
 
-class CursosList( ListView):
+class CursosList( LoginRequiredMixin  ,ListView):
     model = Cursos
     template_name = 'AppWb/curso_list.html'
-class CursosDetalle( DetailView):
+class CursosDetalle(LoginRequiredMixin  ,DetailView):
     model = Cursos
     template_name = 'AppWb/cursos_detalle.html'
-class CursosCreacion( CreateView):
+class CursosCreacion(LoginRequiredMixin  , CreateView):
     model = Cursos
     success_url = '/AppWb/curso/list'
     fields = ['nombre', 'jugadorpro','duracion']
-class CursosUpdate( UpdateView):
+class CursosUpdate( LoginRequiredMixin  ,UpdateView):
     model = Cursos
     success_url = '/AppWb/cursos/list'
     fields = ['nombre', 'jugadorpro','duracion']
-class CursosDelete( DeleteView):
+class CursosDelete(LoginRequiredMixin ,DeleteView):
     model = Cursos
     success_url = '/AppWb/curso/list'
 

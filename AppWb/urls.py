@@ -19,7 +19,7 @@ urlpatterns = [
     path('curso/list', views.CursosList.as_view(), name='List'),
 
     path('login', views.login_request, name='Login'),
-    #path('register',views.register,name='Register'),
+    path('register',views.register,name='Register'),
     path('logout', LogoutView.as_view(template_name='AppWb/logout.html'),name='Logout'),
     
 
